@@ -1,54 +1,82 @@
-var stopwatch = document.querySelector('.stopwatch'),
-		startBtn = document.querySelector('.start'),
-		stopBtn = document.querySelector('.stop'),
-		timerId;
+var
+  stopwatch = document.querySelector('.stopwatch'),
+  startBtn = document.querySelector('.start'),
+  clearBtn = document.querySelector('.clear'),
+  timerId,
+  currentTime,
+  timeStarted,
+  timeStopped,
+  timeResumed;
 
-var running = false, // flag to know if stopwatch is currently running
-		time = 0,
-		h = 0, // hours
-		m = 0, // minutes
-		s = 0, // seconds
-		ss = 0; // milliseconds * 10
+var
+  stoppedDuration = 0,
+  firstStart = true,
+  running = false; // flag to know if stopwatch is currently running
+
 
 function startPause() {
-	if (!running) {
-		startBtn.innerHTML = 'Pause';
-		running = true;
+  if (!running) { // If stopwatch (SW) is stopped (button is START)
 
-		timerId = setInterval(function() {
+    if (firstStart) { // If it's the first time we are starting SW
 
-			ss = time % 100;
-			s = Math.floor(time/100) % 60;
-			m = ((Math.floor(time/100) - s) / 60) % 60;
-			h = Math.floor(time / 360000);
+      firstStart = false;
+      timeStarted = new Date();
 
-			stopwatch.innerHTML = 
-						(h < 10 ? ('0' + h) : h) + ':' + 
-						(m < 10 ? ('0' + m) : m) + ':' + 
-						(s < 10 ? ('0' + s) : s) + 
-						'<span class="ms">' + (ss < 10 ? ('0' + ss) : ss) + '</span>';
+    } else {  // If we are resuming SW
 
-			time++;
-		
-		}, 10);
+      timeResumed = new Date();
+      stoppedDuration += timeResumed - timeStopped;
 
-	} else {
-		startBtn.innerHTML = 'Start';
-		running = false;
-		clearInterval(timerId);
-	}
+    }
 
-};
+    startBtn.innerHTML = 'Pause';
+    running = true;
+    
+    return timerId = setInterval(printTime, 4);
 
-function stop() {
-	clearInterval(timerId);
-	running = false;
-	time = 0;
-	startBtn.innerHTML = 'Start';
-	stopwatch.innerHTML = '00:00:00<span class="ms">00</span>';
+  } else {  // If SW is running (button is PAUSE)
+
+    running = false;
+    timeStopped = new Date();
+    startBtn.innerHTML = 'Cont...';
+
+    return clearInterval(timerId);
+
+  }
+
 }
 
 
+function printTime() {
+
+  currentTime = new Date();
+
+  var timeElapsed = currentTime - stoppedDuration - timeStarted;
+
+  var ms = timeElapsed % 1000;  // milliseconds
+  var s = Math.floor(timeElapsed/1000) % 60; // seconds
+  var m = ((Math.floor(timeElapsed/1000) - s) / 60) % 60; // minutes
+  var h = Math.floor(timeElapsed / 360000); // hours
+
+  return stopwatch.innerHTML =
+        (h < 10 ? ('0' + h) : h) + ':' +
+        (m < 10 ? ('0' + m) : m) + ':' +
+        (s < 10 ? ('0' + s) : s) + '.' +
+        (ms < 10 ? ('00' + ms) : (ms < 100) ? ('0' + ms) : ms);
+}
+
+
+function clear() {
+  running = false;
+  firstStart = true;
+  stoppedDuration = 0;
+  timeElapsed = 0;
+  startBtn.innerHTML = 'Start';
+  stopwatch.innerHTML = '00:00:00.000';
+
+  return clearInterval(timerId);
+}
+
 
 startBtn.addEventListener('click', startPause);
-stopBtn.addEventListener('click', stop);
+clearBtn.addEventListener('click', clear);

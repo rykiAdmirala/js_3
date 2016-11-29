@@ -1,213 +1,108 @@
-var 
-	stopwatch = document.querySelector('.stopwatch'),
-	infoBlock = document.querySelector('.info-block'),
-	startBtn = document.querySelector('.start'),
-	splitBtn = document.querySelector('.split'),
-	resetBtn = document.querySelector('.reset'),
-	timerId,
-
-	currentTime,
-	timeStarted,
-	timeStopped,
-
-	initTime;
+var
+  stopwatch = document.querySelector('.stopwatch'),
+  infoBlock = document.querySelector('.info-block'),
+  startBtn = document.querySelector('.start'),
+  splitBtn = document.querySelector('.split'),
+  resetBtn = document.querySelector('.reset'),
+  timerId,
+  currentTime,
+  timeStarted,
+  timeStopped,
+  timeResumed;
 
 var
-	stoppedDuration = 0,
-	firstStart = true,
-	infoItemCounter = 1, // for replicating http://stopwatch.onlineclock.net/new/
-	running = false; // flag to know if stopwatch is currently running
+  stoppedDuration = 0,
+  firstStart = true,
+  running = false, // flag to know if stopwatch is currently running
+  infoItemCounter = 1; // for replicating http://stopwatch.onlineclock.net/new/
+
 
 function startStop() {
-	if (!running) {
+  if (!running) { // If stopwatch (SW) is stopped, button is START
 
-		if (firstStart) {
-			var dateStarted = new Date();
-			timeStarted = dateStarted.getTime();
+    if (firstStart) { // If it's the first time we are starting SW
 
-			firstStart = false;
-		};
+      firstStart = false;
+      timeStarted = new Date();
 
-		if (!dateStopped) {
-			stoppedDuration += (new Date() - dateStopped);
-		};
+    } else {  // If we are resuming SW
 
-		startBtn.innerHTML = 'Stop';
-		running = true;
+      timeResumed = new Date();
+      stoppedDuration += timeResumed - timeStopped;
 
-		timerId = setInterval(printTime, 4);
+    }
 
-	} else {
+    startBtn.innerHTML = 'Stop';
+    running = true;
+    
+    return timerId = setInterval(printTime, 4);
 
-		var dateStopped = new Date();
-		timeStopped = dateStopped.getTime();
+  } else {  // If SW is running, button is STOP
 
-		clearInterval(timerId);
-		running = false;
+    running = false;
+    timeStopped = new Date();
+    startBtn.innerHTML = 'Start';
+    addInfoItem(stop);
 
+    return clearInterval(timerId);
 
-		startBtn.innerHTML = 'Start';
-		addInfoItem(stop);
+  }
 
-
-	}
-
-};
-
+}
 
 
 function printTime() {
 
-	var curDate = new Date();
-	curTime = curDate.getTime(); // current time
+  currentTime = new Date();
 
-	var timeElapsed = curTime - timeStopped - timeStarted;
+  var timeElapsed = currentTime - stoppedDuration - timeStarted;
 
-	var ms = timeElapsed % 1000;
-	var s = Math.floor(timeElapsed/1000) % 60;
-	var m = ((Math.floor(timeElapsed/1000) - s) / 60) % 60;
-	var h = Math.floor(timeElapsed / 360000);
+  var ms = timeElapsed % 1000;  // milliseconds
+  var s = Math.floor(timeElapsed/1000) % 60; // seconds
+  var m = ((Math.floor(timeElapsed/1000) - s) / 60) % 60; // minutes
+  var h = Math.floor(timeElapsed / 360000); // hours
 
-	stopwatch.innerHTML = 
-				(h < 10 ? ('0' + h) : h) + ':' + 
-				(m < 10 ? ('0' + m) : m) + ':' + 
-				(s < 10 ? ('0' + s) : s) + '.' + 
-				(ms < 10 ? ('00' + ms) : (ms < 100) ? ('0' + ms) : ms);
+  return stopwatch.innerHTML =
+        (h < 10 ? ('0' + h) : h) + ':' +
+        (m < 10 ? ('0' + m) : m) + ':' +
+        (s < 10 ? ('0' + s) : s) + '.' +
+        (ms < 10 ? ('00' + ms) : (ms < 100) ? ('0' + ms) : ms);
 }
 
 
-
-
-
-
-
 function split() {
-	if (running) {
-		addInfoItem();		
-	}
-};
+  if (running) {
+    return addInfoItem();
+  }
+}
+
 
 function reset() {
-	clearInterval(timerId);
-	running = false;
-	time = 0;
-	infoItemCounter = 1;
-	startBtn.innerHTML = 'Start';
-	stopwatch.innerHTML = '00:00:00:00';
-	infoBlock.innerHTML = '';
-};
+  running = false;
+  firstStart = true;
+  infoItemCounter = 1;
+  stoppedDuration = 0;
+  timeElapsed = 0;
+  startBtn.innerHTML = 'Start';
+  stopwatch.innerHTML = '00:00:00.000';
+  infoBlock.innerHTML = '';
+
+  return clearInterval(timerId);
+}
 
 // Pass a parametre to the function below if you want to print 'Stop' instead of 'Split'
 function addInfoItem(stop) {
-	var infoItem = document.createElement('div');
-	infoItem.classList.add('info-item');
 
-	if (stop) {
-		infoItem.innerHTML = infoItemCounter + ' Stop: ' + currentTime;
-	} else {
-		infoItem.innerHTML = infoItemCounter + ' Split: ' + currentTime;
-	}
+  var infoItem = document.createElement('div');
+  infoItem.classList.add('info-item');
+  infoItem.innerHTML = infoItemCounter + (stop ? ' Stop: ' : ' Split: ') + stopwatch.innerHTML;
+  infoItemCounter++;
 
-	infoBlock.appendChild(infoItem);
-	infoItemCounter++;
+  return infoBlock.appendChild(infoItem);
 
-};
+}
+
 
 startBtn.addEventListener('click', startStop);
 splitBtn.addEventListener('click', split);
 resetBtn.addEventListener('click', reset);
-
-
-
-
-/* WORKING TIMER, NO MILLISECONDS 
-
-var 
-	stopwatch = document.querySelector('.stopwatch'),
-	infoBlock = document.querySelector('.info-block'),
-	startBtn = document.querySelector('.start'),
-	splitBtn = document.querySelector('.split'),
-	resetBtn = document.querySelector('.reset'),
-	timerId,
-	currentTime;
-
-var
-	infoItemCounter = 1, // for replicating http://stopwatch.onlineclock.net/new/
-	running = false, // flag to know if stopwatch is currently running
-	time = 0,
-	h = 0, // hours
-	m = 0, // minutes
-	s = 0, // seconds
-	ss = 0; // milliseconds * 10
-
-function startStop() {
-	if (!running) {
-		startBtn.innerHTML = 'Stop';
-		running = true;
-
-		timerId = setInterval(function() {
-
-			ss = time % 100;
-			s = Math.floor(time/100) % 60;
-			m = ((Math.floor(time/100) - s) / 60) % 60;
-			h = Math.floor(time / 360000);
-
-			stopwatch.innerHTML = 
-						(h < 10 ? ('0' + h) : h) + ':' + 
-						(m < 10 ? ('0' + m) : m) + ':' + 
-						(s < 10 ? ('0' + s) : s) + '.' + 
-						(ss < 10 ? ('0' + ss) : ss);
-
-			currentTime = stopwatch.innerHTML;
-
-			time++;
-		
-		}, 10);
-
-	} else {
-		clearInterval(timerId);
-		running = false;
-		startBtn.innerHTML = 'Start';
-		addInfoItem(stop);
-	}
-
-};
-
-function split() {
-	if (running) {
-		addInfoItem();		
-	}
-};
-
-function reset() {
-	clearInterval(timerId);
-	running = false;
-	time = 0;
-	infoItemCounter = 1;
-	startBtn.innerHTML = 'Start';
-	stopwatch.innerHTML = '00:00:00:00';
-	infoBlock.innerHTML = '';
-};
-
-// Pass a parametre to the function below if you want to print 'Stop' instead of 'Split'
-function addInfoItem(stop) {
-	var infoItem = document.createElement('div');
-	infoItem.classList.add('info-item');
-
-	if (stop) {
-		infoItem.innerHTML = infoItemCounter + ' Stop: ' + currentTime;
-	} else {
-		infoItem.innerHTML = infoItemCounter + ' Split: ' + currentTime;
-	}
-
-	infoBlock.appendChild(infoItem);
-	infoItemCounter++;
-
-};
-
-startBtn.addEventListener('click', startStop);
-splitBtn.addEventListener('click', split);
-resetBtn.addEventListener('click', reset);
-
-
-*/

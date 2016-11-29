@@ -4,7 +4,7 @@
 }
 body {
     background: #f0f0f0;
-    font-family: Arial, sans-serif;
+    font-family: monospace;
 }
 .wrapper {
     max-width: 980px;
@@ -24,7 +24,7 @@ body {
 button {
     position: relative;
     margin: 0 5px;
-    padding: 0 20px;
+    width: 155px;
     background: #ddd;
     border: 1px solid #999;
     border-radius: 4px;

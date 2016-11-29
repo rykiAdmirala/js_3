@@ -18,7 +18,7 @@ body {
 button {
     position: relative;
     margin: 0 5px;
-    padding: 0 20px;
+    width: 105px;
     background: #ddd;
     border: 1px solid #999;
     border-radius: 4px;
